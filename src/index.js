@@ -230,19 +230,6 @@ let defaults = {
 let eh = cy.edgehandles( );
 
 
-
-document.getElementById('draw-on').addEventListener('click', function() {
-    eh.enableDrawMode();
-});
-
-document.getElementById('draw-off').addEventListener('click', function() {
-    eh.disableDrawMode();
-});
-
-document.getElementById('start').addEventListener('click', function() {
-    eh.start( cy.$('node:selected') );
-});
-
 document.getElementById('adjust').addEventListener('click', function() {
     adjustWithD3(false);
 });
