@@ -144,6 +144,8 @@ async function createGraphFromJson() {
 
 let elements = createGraphFromJson();
 
+let longestPath = null;
+
 const layoutProperties = {
     name: 'd3-force',
     animate: true,
@@ -380,8 +382,10 @@ document.getElementById('nodeNameInput').addEventListener('keydown', function(ev
     }
 });
 
-function clearHighlights() {
-    cy.elements().removeClass('highlighted');
+// Function to update the display
+function updateLongestPathDisplay() {
+    const displayElement = document.getElementById('longest-path-display');
+    displayElement.textContent = `Longest Path: ${longestPath}`;
 }
 
 function findShortestPathsFromNode(sourceId) {
@@ -403,6 +407,11 @@ function findShortestPathsFromNode(sourceId) {
     cy.nodes().forEach(targetNode => {
         if (targetNode.id() !== sourceId) {
             const path = dijkstra.pathTo(targetNode);
+            const distance = dijkstra.distanceTo(targetNode);
+            if ((distance !== Infinity) && (distance > longestPath)) {
+                longestPath = distance;
+                updateLongestPathDisplay();
+            }
                 // if the index of the element in the path is odd, it's an edge
             path.forEach((element, index) => {
                 if (index % 2 === 1) {
@@ -421,6 +430,7 @@ function findShortestPathsFromNode(sourceId) {
 
 cy.on('tap', 'node', function(event) {
     const node = event.target;
+    longestPath = null;
     findShortestPathsFromNode(node.id());
     node.removeClass('highlighted');
 });

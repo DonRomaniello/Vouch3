@@ -24,6 +24,11 @@
         "id": "George,Lonesome",
         "group": "group1",
         "name": "Lonesome George"
+      },
+      {
+        "id": "Hypeman,Pete",
+        "group": "group1",
+        "name": "Pete Hypeman"
       }
     ],
     "edges": [
@@ -74,6 +79,10 @@
       {
         "source" : "Romaniello,Don",
         "target" : "jones,thaddeus"
-      }
+      },
+      {
+        "source" : "Romaniello,Don",
+        "target" : "Hypeman,Pete"
+        }
     ]
   }
