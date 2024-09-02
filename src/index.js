@@ -9,6 +9,9 @@ import {
   limitShift,
 } from '@floating-ui/dom';
 
+
+
+
 function popperFactory(ref, content, opts) {
     // see https://floating-ui.com/docs/computePosition#options
     const popperOptions = {
@@ -33,9 +36,10 @@ function popperFactory(ref, content, opts) {
     return { update };
  }
  
- cytoscape.use(cytoscapePopper(popperFactory));
+cytoscape.use(cytoscapePopper(popperFactory));
 cytoscape.use( edgehandles );
 cytoscape.use( d3Force );
+
 
 
 function generateJson() {
@@ -140,6 +144,8 @@ async function createGraphFromJson() {
 
 let elements = createGraphFromJson();
 
+let longestPath = null;
+
 const layoutProperties = {
     name: 'd3-force',
     animate: true,
@@ -234,6 +240,15 @@ var cy = cytoscape({
           style: {
             'opacity': 0
           }
+        },
+        {
+            selector: '.highlighted',
+            style: {
+                'background-color': '#3492eb',
+                'line-color': '#3492eb',
+                'target-arrow-color': '#3492eb',
+                'source-arrow-color': '#3492eb'
+            }
         }
       ],
       elements: elements,
@@ -337,12 +352,14 @@ function createNodeAndEdge(event) {
 
 cy.on('dblclick', function(event) {
     if (event.target === cy) {
+        cy.elements().removeClass('highlighted');
         createNodeAndEdge(event);
     }
 });
 
 cy.on('tap', function(event) {
     if (lastClickedNode && (event.target === cy)) {
+        cy.elements().removeClass('highlighted');
         createNodeAndEdge(event);
 }
 
@@ -364,5 +381,59 @@ document.getElementById('nodeNameInput').addEventListener('keydown', function(ev
         saveNodeName();
     }
 });
+
+// Function to update the display
+function updateLongestPathDisplay() {
+    const displayElement = document.getElementById('longest-path-display');
+    displayElement.textContent = `Longest Path: ${longestPath}`;
+}
+
+function findShortestPathsFromNode(sourceId) {
+    const sourceNode = cy.getElementById(sourceId);
+
+    if (sourceNode.length === 0) {
+        return;
+    }
+
+    const dijkstra = cy.elements().dijkstra({
+        root: sourceNode,
+        directed: true, // Set to true if you want to find directed paths
+    });
+
+    // Clear previous highlights
+    cy.elements().removeClass('highlighted');
+
+
+    cy.nodes().forEach(targetNode => {
+        if (targetNode.id() !== sourceId) {
+            const path = dijkstra.pathTo(targetNode);
+            const distance = dijkstra.distanceTo(targetNode);
+            if ((distance !== Infinity) && (distance > longestPath)) {
+                longestPath = distance;
+                updateLongestPathDisplay();
+            }
+                // if the index of the element in the path is odd, it's an edge
+            path.forEach((element, index) => {
+                if (index % 2 === 1) {
+                    element.addClass('highlighted');
+                }
+            });
+            // also, if the path has more than one element, the target node is included
+            if (path.length > 1) {
+                targetNode.addClass('highlighted');
+            }
+        }
+    });
+
+    
+}
+
+cy.on('tap', 'node', function(event) {
+    const node = event.target;
+    longestPath = null;
+    findShortestPathsFromNode(node.id());
+    node.removeClass('highlighted');
+});
+
 
 });

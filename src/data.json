@@ -19,10 +19,19 @@
         "id": "Schwartz,David",
         "group": "group1",
         "name": "David Schwartz"
+      },
+      {
+        "id": "George,Lonesome",
+        "group": "group1",
+        "name": "Lonesome George"
+      },
+      {
+        "id": "Hypeman,Pete",
+        "group": "group1",
+        "name": "Pete Hypeman"
       }
     ],
     "edges": [
-      
       {
         "source": "florez,alexander",
         "target": "jones,thaddeus"
@@ -70,6 +79,10 @@
       {
         "source" : "Romaniello,Don",
         "target" : "jones,thaddeus"
-      }
+      },
+      {
+        "source" : "Romaniello,Don",
+        "target" : "Hypeman,Pete"
+        }
     ]
   }
