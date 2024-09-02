@@ -13,6 +13,8 @@ const MAX_Y = 800
 const MAX_X = 1500
 
 
+
+
 function createId(salt, randomLength = 8) {
     return (
       (salt || '') +
@@ -106,6 +108,8 @@ function createId(salt, randomLength = 8) {
 
   let elements = createData(10)
   console.log(elements)
+  let adjustmentsLocked = false; // Flag to control adjustments
+
 
 // Initialize Cytoscape
 var cy = cytoscape({
@@ -236,7 +240,41 @@ document.getElementById('start').addEventListener('click', function() {
     eh.start( cy.$('node:selected') );
 });
 
+document.getElementById('adjust').addEventListener('click', function() {
+    adjustWithD3(false);
+});
+
+document.getElementById('adjust-and-randomize').addEventListener('click', function() {
+    adjustWithD3(true);
+});
+
 let lastClickedNode = null;
+
+// adjust all elements with d3 when anything happens
+function adjustWithD3(randomize) {
+    if (adjustmentsLocked) {
+        console.log('Adjustments are locked.');
+        return;
+    }
+    cy.layout({
+        name: 'd3-force',
+        animate: true,
+        fixedAfterDragging: false,
+        linkId: function id(d) {
+            return d.id;
+          },
+        linkDistance: 80,
+        manyBodyStrength: -300,
+        ready: function(){},
+        stop: function(){},
+        tick: function(progress) {
+            console.log('progress - ', progress);
+        },
+        randomize,
+        infinite: true
+    }).run();
+  }
+
 
 cy.on('dblclick', 'node', function(event) {
     let node = event.target;
@@ -289,4 +327,7 @@ cy.on('dblclick', function(event) {
 cy.on('tap', function(event) {
     if (lastClickedNode && (event.target === cy)) {
         createNodeAndEdge(event);
-}});
+}
+
+
+});
