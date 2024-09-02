@@ -1,0 +1,75 @@
+{
+    "nodes": [
+      {
+        "id": "florez,alexander",
+        "group": "group1",
+        "name": "alexander florez"
+      },
+      {
+        "id": "jones,thaddeus",
+        "group": "group1",
+        "name": "Thaddeus"
+      },
+      {
+        "id": "Romaniello,Don",
+        "group": "group1",
+        "name": "Don Romaniello"
+      },
+      {
+        "id": "Schwartz,David",
+        "group": "group1",
+        "name": "David Schwartz"
+      }
+    ],
+    "edges": [
+      
+      {
+        "source": "florez,alexander",
+        "target": "jones,thaddeus"
+      },
+      {
+        "source": "florez,alexander",
+        "target": "Romaniello,Don"
+      },
+      {
+        "source": "florez,alexander",
+        "target": "Schwartz,David"
+      },
+      {
+        "source": "jones,thaddeus",
+        "target": "Romaniello,Don"
+      },
+      {
+        "source": "jones,thaddeus",
+        "target": "Schwartz,David"
+      },
+      {
+        "source": "Romaniello,Don",
+        "target": "Schwartz,David"
+      },
+      {
+        "source": "Romaniello,Don",
+        "target": "florez,alexander"
+      },
+      {
+        "source": "Schwartz,David",
+        "target": "jones,thaddeus"
+      },
+      {
+        "source": "Schwartz,David",
+        "target": "Romaniello,Don"
+      },
+      {
+        "source": "Schwartz,David",
+        "target": "florez,alexander"
+      },
+      {
+        "source": "florez,alexander",
+        "target": "jones,thaddeus"
+      },
+      {
+        "source" : "Romaniello,Don",
+        "target" : "jones,thaddeus"
+      }
+    ]
+  }

@@ -84,30 +84,55 @@ function createId(salt, randomLength = 8) {
     }
     return edges
   }
-//   function createEdgesFromId(nodes, id) {
-//     let edges = nodes.map(node => {
-//       return {
-//         group: 'edges',
-//         data: {
-//           target: node.data.id,
-//           source: id,
-//           id: createId('edge_'),
-//           group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
-//           label: node.data.id + '-' + id,
-//           name: node.data.id + '-' + id
-//         }
-//       }
-//     })
-//     return edges
+
+
+  async function loadJsonData() {
+    try {
+        const response = await fetch('data.json');
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+        return null;
+    }
+}
+
+// Function to create nodes and edges from JSON data
+async function createGraphFromJson() {
+    const jsonData = await loadJsonData();
+    if (!jsonData) return;
+
+    const nodes = jsonData.nodes.map(node => ({
+        group: 'nodes',
+        data: {
+            id: node.id,
+            position: node.position,
+            group: node.group,
+            name: node.name
+        },
+        id: node.id
+    }));
+
+    const edges = jsonData.edges.map(edge => ({
+        group: 'edges',
+        data: {
+            source: edge.source,
+            target: edge.target
+        }
+    }));
+
+    // Assuming you have a function to add nodes and edges to your graph
+    return nodes.concat(edges);
+}
+
+//   function createData(nodes, edges) {
+//     // let nodes = createNodes(num)
+//     // let edges = createEdges(nodes, num)
+//     return nodes.concat(edges)// .concat(createParent(nodes))
 //   }
-  function createData(num) {
-    let nodes = createNodes(num)
-    let edges = createEdges(nodes, num)
-    return nodes.concat(edges)// .concat(createParent(nodes))
-  }
 
 
-  let elements = createData(10)
+  let elements = createGraphFromJson();
 
 
 // Initialize Cytoscape
@@ -122,7 +147,7 @@ var cy = cytoscape({
         linkId: function id(d) {
             return d.id;
           },
-        linkDistance: 80,
+        linkDistance: 200,
         manyBodyStrength: -300,
         maxIterations: 100,
         // maxSimulationTime: 2000,
