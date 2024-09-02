@@ -39,13 +39,14 @@ function createId(salt, randomLength = 8) {
         parent: _groupId
       }
       data.label = data.group + '-node' + i
+      data.name = "Josh"
       datas.push({
         group: 'nodes',
         data,
         id: data.id
       })
     }
-    return datas
+    return datas        
   }
 //   function createParent (nodes) {
 //     let _parents = Array.from(new Set(nodes.map(node => node.data.group))).filter(p => !nodes.find(node => node.data.id === p) && p !== 'person')
@@ -107,8 +108,6 @@ function createId(salt, randomLength = 8) {
 
 
   let elements = createData(10)
-  console.log(elements)
-  let adjustmentsLocked = false; // Flag to control adjustments
 
 
 // Initialize Cytoscape
@@ -125,13 +124,11 @@ var cy = cytoscape({
           },
         linkDistance: 80,
         manyBodyStrength: -300,
-        maxIterations: 50,
+        maxIterations: 100,
         // maxSimulationTime: 2000,
         ready: function(){},
         stop: function(){},
-        tick: function(progress) {
-            console.log('progress - ', progress);
-        },
+        tick: function(){},
         randomize: false,
         // infinite: true
       },
@@ -230,6 +227,7 @@ let defaults = {
 let eh = cy.edgehandles( );
 
 
+
 document.getElementById('draw-on').addEventListener('click', function() {
     eh.enableDrawMode();
 });
@@ -254,10 +252,6 @@ let lastClickedNode = null;
 
 // adjust all elements with d3 when anything happens
 function adjustWithD3(randomize) {
-    if (adjustmentsLocked) {
-        console.log('Adjustments are locked.');
-        return;
-    }
     cy.layout({
         name: 'd3-force',
         animate: true,
@@ -267,13 +261,11 @@ function adjustWithD3(randomize) {
           },
         linkDistance: 80,
         manyBodyStrength: -300,
-        mazIterations: 50,
+        maxIterations: 50,
         // maxSimulationTime: 2,
         ready: function(){},
         stop: function(){},
-        tick: function(progress) {
-            console.log('progress - ', progress);
-        },
+        tick: function(progress) {},
         randomize,
         // infinite: true
     }).run();
@@ -320,8 +312,6 @@ function createNodeAndEdge(event) {
 
     // Add tap event listener to create a new node when clicking on a blank area
 
-
-
 cy.on('dblclick', function(event) {
     if (event.target === cy) {
         createNodeAndEdge(event);
@@ -332,6 +322,5 @@ cy.on('tap', function(event) {
     if (lastClickedNode && (event.target === cy)) {
         createNodeAndEdge(event);
 }
-
 
 });
