@@ -19,10 +19,14 @@
         "id": "Schwartz,David",
         "group": "group1",
         "name": "David Schwartz"
+      },
+      {
+        "id": "George,Lonesome",
+        "group": "group1",
+        "name": "Lonesome George"
       }
     ],
     "edges": [
-      
       {
         "source": "florez,alexander",
         "target": "jones,thaddeus"
