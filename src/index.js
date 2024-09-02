@@ -1,8 +1,39 @@
 import cytoscape from 'cytoscape';
 import edgehandles from 'cytoscape-edgehandles';
 import d3Force from 'cytoscape-d3-force';
+import cytoscapePopper from 'cytoscape-popper';
+import {
+  computePosition,
+  flip,
+  shift,
+  limitShift,
+} from '@floating-ui/dom';
 
-
+function popperFactory(ref, content, opts) {
+    // see https://floating-ui.com/docs/computePosition#options
+    const popperOptions = {
+        // matching the default behaviour from Popper@2
+        // https://floating-ui.com/docs/migration#configure-middleware
+        middleware: [
+            flip(),
+            shift({limiter: limitShift()})
+        ],
+        ...opts,
+    }
+ 
+    function update() {
+        computePosition(ref, content, popperOptions).then(({x, y}) => {
+            Object.assign(content.style, {
+                left: `${x}px`,
+                top: `${y}px`,
+            });
+        });
+    }
+    update();
+    return { update };
+ }
+ 
+ cytoscape.use(cytoscapePopper(popperFactory));
 cytoscape.use( edgehandles );
 cytoscape.use( d3Force );
 
@@ -131,7 +162,7 @@ var cy = cytoscape({
 
     layout: {
         ...layoutProperties,
-        maxIterations: 100,
+        maxSimulationTime: 4000,
         randomize: false,
       },
 
@@ -245,7 +276,7 @@ function adjustWithD3(randomize) {
     cy.layout({
         ...layoutProperties,
         randomize,
-        maxIterations: 50,
+        maxSimulationTime: 4000,
         // infinite: true
     }).run();
   }
@@ -265,28 +296,41 @@ cy.on('dblclick', 'edge', function(event) {
     });
 
 // Add function that creates a new node and edge when clicking on a blank area
+
 function createNodeAndEdge(event) {
-    let pos = event.position;
+    const pos = event.position || event.cyPosition;
     let newNodeId = createId('node_');
     cy.add({
-    group: 'nodes',
-    data: { id: newNodeId },
-    position: { x: pos.x, y: pos.y }
+        group: 'nodes',
+        data: { id: newNodeId },
+        position: { x: pos.x, y: pos.y }
     });
     console.log(`New node created: ${newNodeId}`);
 
     if (lastClickedNode) {
-    cy.add({
-        group: 'edges',
-        data: {
-        id: createId('edge_'),
-        source: lastClickedNode.id(),
-        target: newNodeId
-        }
-    });
-    console.log(`New edge created from ${lastClickedNode.id()} to ${newNodeId}`);
-    lastClickedNode = null; // Reset the last clicked node
+        cy.add({
+            group: 'edges',
+            data: {
+                id: createId('edge_'),
+                source: lastClickedNode.id(),
+                target: newNodeId
+            }
+        });
+        console.log(`New edge created from ${lastClickedNode.id()} to ${newNodeId}`);
+        lastClickedNode = null; // Reset the last clicked node
     }
+
+    // Show the pop-up div with input box
+    const popperDiv = document.getElementById('nameInputBox');
+    const nodeNameInput = document.getElementById('nodeNameInput');
+    popperDiv.style.display = 'block';
+    popperDiv.style.left = `${pos.x}px`;
+    popperDiv.style.top = `${pos.y}px`;
+    nodeNameInput.value = ''; // Clear the input box
+    nodeNameInput.focus();
+
+    // Save the new node ID to use it later
+    popperDiv.dataset.nodeId = newNodeId;
 }
 
     // Add tap event listener to create a new node when clicking on a blank area
@@ -301,5 +345,24 @@ cy.on('tap', function(event) {
     if (lastClickedNode && (event.target === cy)) {
         createNodeAndEdge(event);
 }
+
+// Handle input submission
+function saveNodeName() {
+    const popperDiv = document.getElementById('nameInputBox');
+    const nodeNameInput = document.getElementById('nodeNameInput');
+    const nodeId = popperDiv.dataset.nodeId;
+    const node = cy.getElementById(nodeId);
+    node.data('name', nodeNameInput.value);
+    popperDiv.style.display = 'none';
+    lastClickedNode = null;
+}
+
+document.getElementById('saveNodeName').addEventListener('click', saveNodeName);
+
+document.getElementById('nodeNameInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        saveNodeName();
+    }
+});
 
 });
