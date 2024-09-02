@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js', // Entry point for your application
@@ -24,6 +25,13 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'src/data.json', to: 'data.json' } // Copy data.json to dist directory
+      ]
+    })
+  ],
   devServer: {
     static: {
       directory: path.join(__dirname, 'dist'), // Serve files from the dist directory
