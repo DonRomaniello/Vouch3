@@ -6,13 +6,54 @@ import d3Force from 'cytoscape-d3-force';
 cytoscape.use( edgehandles );
 cytoscape.use( d3Force );
 
-const group = ['hospital', 'clothes', 'computer', 'person', 'flower', 'tree', 'desk', 'house', 'water', 'cup']
-const edgegroup = ['has', 'goto', 'love']
-const year = ['2017', '2018', '2019']
-const MAX_Y = 800
-const MAX_X = 1500
 
+function generateJson() {
+    const elements = cy.elements().jsons();
+    return JSON.stringify(elements, null, 2);
+}
 
+function downloadJson() {
+    const json = generateJson();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'graph-layout.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+document.getElementById('download-json').addEventListener('click', downloadJson);
+
+function handleFileInput(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const jsonData = JSON.parse(e.target.result);
+            updateGraphWithJson(jsonData);
+        };
+        reader.readAsText(file);
+    }
+}
+
+function updateGraphWithJson(jsonData) {
+    
+    cy.elements().remove(); // Remove existing elements
+    cy.add(jsonData); // Add new elements
+    cy.layout({
+        ...layoutProperties,
+    }
+    ).run(); // Apply layout
+}
+
+document.getElementById('load-json').addEventListener('click', function() {
+    document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', handleFileInput);
 
 
 function createId(salt, randomLength = 8) {
@@ -25,89 +66,62 @@ function createId(salt, randomLength = 8) {
       ).toString(36)
     )
   }
-  function createNodes(num) {
-    let datas = []
-    for (let i = 0; i < num; i++) {
-      let _groupId = group[Math.floor(Math.random() * group.length)]
-      let data = {
-        id: createId('node_'),
-        position: {
-          x: Math.random() * MAX_X,
-          y: Math.random() * MAX_Y,
-        },
-        group: _groupId,
-        parent: _groupId
-      }
-      data.label = data.group + '-node' + i
-      data.name = "Josh"
-      datas.push({
+
+
+  async function loadJsonData() {
+    try {
+        const response = await fetch('data.json');
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+        return null;
+    }
+}
+
+// Function to create nodes and edges from JSON data
+async function createGraphFromJson() {
+    const jsonData = await loadJsonData();
+    if (!jsonData) return;
+
+    const nodes = jsonData.nodes.map(node => ({
         group: 'nodes',
-        data,
-        id: data.id
-      })
-    }
-    return datas        
-  }
-//   function createParent (nodes) {
-//     let _parents = Array.from(new Set(nodes.map(node => node.data.group))).filter(p => !nodes.find(node => node.data.id === p) && p !== 'person')
-//     return _parents.map(p => {
-//       return {
-//         group: 'nodes',
-//         data: {
-//           id: p,
-//           label: p
-//         },
-//         id: p
-//       }
-//     })
-//   }
-  function createEdges(nodes, num) {
-    let edges = []
-    for (let i = 0; i < num - 1; i++) {
-      let target = nodes[i + 1].data.id
-      let source = nodes[Math.floor(Math.sqrt(i))].data.id
-      let edge = {
-        target,
-        source,
-        id: createId('edge_'),
-        group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
-        time: year[Math.floor(Math.random() * year.length)] + '-' + Math.ceil(Math.random() * 12) + '-' + Math.ceil(Math.random() * 30)
-      }
-      edge.label = 'edge' + i
-      edge.name = 'edge' + i
-  
-      edges.push({
-        data: edge,
+        data: {
+            id: node.id,
+            position: node.position,
+            group: node.group,
+            name: node.name
+        },
+        id: node.id
+    }));
+
+    const edges = jsonData.edges.map(edge => ({
         group: 'edges',
-        id: edge.id
-      })
-    }
-    return edges
-  }
-//   function createEdgesFromId(nodes, id) {
-//     let edges = nodes.map(node => {
-//       return {
-//         group: 'edges',
-//         data: {
-//           target: node.data.id,
-//           source: id,
-//           id: createId('edge_'),
-//           group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
-//           label: node.data.id + '-' + id,
-//           name: node.data.id + '-' + id
-//         }
-//       }
-//     })
-//     return edges
-//   }
-  function createData(num) {
-    let nodes = createNodes(num)
-    let edges = createEdges(nodes, num)
-    return nodes.concat(edges)// .concat(createParent(nodes))
-  }
+        data: {
+            source: edge.source,
+            target: edge.target
+        }
+    }));
 
+    // Assuming you have a function to add nodes and edges to your graph
+    return nodes.concat(edges);
+}
 
-  let elements = createData(10)
+let elements = createGraphFromJson();
+
+const layoutProperties = {
+    name: 'd3-force',
+    animate: true,
+    fixedAfterDragging: false,
+    linkId: function id(d) {
+        return d.id;
+    },
+    linkDistance: 200,
+    manyBodyStrength: -300,
+    ready: function() {},
+    stop: function() {},
+    tick: function() {}
+};
 
 
 // Initialize Cytoscape
@@ -116,21 +130,9 @@ var cy = cytoscape({
     
 
     layout: {
-        name: 'd3-force',
-        animate: true,
-        fixedAfterDragging: false,
-        linkId: function id(d) {
-            return d.id;
-          },
-        linkDistance: 80,
-        manyBodyStrength: -300,
+        ...layoutProperties,
         maxIterations: 100,
-        // maxSimulationTime: 2000,
-        ready: function(){},
-        stop: function(){},
-        tick: function(){},
         randomize: false,
-        // infinite: true
       },
 
       style: [
@@ -145,7 +147,8 @@ var cy = cytoscape({
           selector: 'edge',
           style: {
             'curve-style': 'bezier',
-            'target-arrow-shape': 'triangle'
+            'target-arrow-shape': 'triangle',
+            'opacity': 0.25,
           }
         },
 
@@ -227,19 +230,6 @@ let defaults = {
 let eh = cy.edgehandles( );
 
 
-
-document.getElementById('draw-on').addEventListener('click', function() {
-    eh.enableDrawMode();
-});
-
-document.getElementById('draw-off').addEventListener('click', function() {
-    eh.disableDrawMode();
-});
-
-document.getElementById('start').addEventListener('click', function() {
-    eh.start( cy.$('node:selected') );
-});
-
 document.getElementById('adjust').addEventListener('click', function() {
     adjustWithD3(false);
 });
@@ -253,20 +243,9 @@ let lastClickedNode = null;
 // adjust all elements with d3 when anything happens
 function adjustWithD3(randomize) {
     cy.layout({
-        name: 'd3-force',
-        animate: true,
-        fixedAfterDragging: false,
-        linkId: function id(d) {
-            return d.id;
-          },
-        linkDistance: 80,
-        manyBodyStrength: -300,
-        maxIterations: 50,
-        // maxSimulationTime: 2,
-        ready: function(){},
-        stop: function(){},
-        tick: function(progress) {},
+        ...layoutProperties,
         randomize,
+        maxIterations: 50,
         // infinite: true
     }).run();
   }
