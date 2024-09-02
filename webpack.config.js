@@ -29,6 +29,8 @@ module.exports = {
       directory: path.join(__dirname, 'dist'), // Serve files from the dist directory
     },
     compress: true, // Enable gzip compression
-    port: 9000 // Port to run the development server
+    port: 9000, // Port to run the development server
+    hot: true, // Enable Hot Module Replacement
+    watchFiles: ['src/**/*'], // Watch for changes in the src directory
   }
 };
