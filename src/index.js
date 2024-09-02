@@ -125,13 +125,15 @@ var cy = cytoscape({
           },
         linkDistance: 80,
         manyBodyStrength: -300,
+        maxIterations: 50,
+        // maxSimulationTime: 2000,
         ready: function(){},
         stop: function(){},
         tick: function(progress) {
             console.log('progress - ', progress);
         },
         randomize: false,
-        infinite: true
+        // infinite: true
       },
 
       style: [
@@ -265,13 +267,15 @@ function adjustWithD3(randomize) {
           },
         linkDistance: 80,
         manyBodyStrength: -300,
+        mazIterations: 50,
+        // maxSimulationTime: 2,
         ready: function(){},
         stop: function(){},
         tick: function(progress) {
             console.log('progress - ', progress);
         },
         randomize,
-        infinite: true
+        // infinite: true
     }).run();
   }
 
