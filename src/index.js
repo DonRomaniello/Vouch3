@@ -221,42 +221,72 @@ let defaults = {
     disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
   };
   
-  let eh = cy.edgehandles( );
+let eh = cy.edgehandles( );
 
 
-  document.getElementById('draw-on').addEventListener('click', function() {
+document.getElementById('draw-on').addEventListener('click', function() {
     eh.enableDrawMode();
-  });
+});
 
-  document.getElementById('draw-off').addEventListener('click', function() {
+document.getElementById('draw-off').addEventListener('click', function() {
     eh.disableDrawMode();
-  });
+});
 
-  document.getElementById('start').addEventListener('click', function() {
+document.getElementById('start').addEventListener('click', function() {
     eh.start( cy.$('node:selected') );
-  });
+});
 
-  cy.on('dblclick', 'node', function(event) {
+let lastClickedNode = null;
+
+cy.on('dblclick', 'node', function(event) {
     let node = event.target;
     eh.start(node);
+    lastClickedNode = node;
   });
 
-    // Add double-click event listener to remove an edge
-    cy.on('dblclick', 'edge', function(event) {
+
+// Add double-click event listener to remove an edge
+cy.on('dblclick', 'edge', function(event) {
         let edge = event.target;
         edge.remove();
-      });
+    });
 
-      // Add tap event listener to create a new node when clicking on a blank area
-  cy.on('tap', function(event) {
-    if (event.target === cy) {
-      let pos = event.position;
-      let newNodeId = createId('node_');
-      cy.add({
-        group: 'nodes',
-        data: { id: newNodeId },
-        position: { x: pos.x, y: pos.y }
-      });
-      console.log(`New node created: ${newNodeId}`);
+// Add function that creates a new node and edge when clicking on a blank area
+function createNodeAndEdge(event) {
+    let pos = event.position;
+    let newNodeId = createId('node_');
+    cy.add({
+    group: 'nodes',
+    data: { id: newNodeId },
+    position: { x: pos.x, y: pos.y }
+    });
+    console.log(`New node created: ${newNodeId}`);
+
+    if (lastClickedNode) {
+    cy.add({
+        group: 'edges',
+        data: {
+        id: createId('edge_'),
+        source: lastClickedNode.id(),
+        target: newNodeId
+        }
+    });
+    console.log(`New edge created from ${lastClickedNode.id()} to ${newNodeId}`);
+    lastClickedNode = null; // Reset the last clicked node
     }
-  });
+}
+
+    // Add tap event listener to create a new node when clicking on a blank area
+
+
+
+cy.on('dblclick', function(event) {
+    if (event.target === cy) {
+        createNodeAndEdge(event);
+    }
+});
+
+cy.on('tap', function(event) {
+    if (lastClickedNode && (event.target === cy)) {
+        createNodeAndEdge(event);
+}});
