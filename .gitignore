@@ -1,3 +1,7 @@
+# Refernces for branch
+references/*
+!references/.gitkeep
+
 # Logs
 logs
 *.log
