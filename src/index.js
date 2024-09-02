@@ -19,7 +19,7 @@ function createId(salt, randomLength = 8) {
       Number(
         Math.random()
           .toString()
-          .substr(3, randomLength) + Date.now()
+          .substring(3, randomLength) + Date.now()
       ).toString(36)
     )
   }
@@ -45,19 +45,19 @@ function createId(salt, randomLength = 8) {
     }
     return datas
   }
-  function createParent (nodes) {
-    let _parents = Array.from(new Set(nodes.map(node => node.data.group))).filter(p => !nodes.find(node => node.data.id === p) && p !== 'person')
-    return _parents.map(p => {
-      return {
-        group: 'nodes',
-        data: {
-          id: p,
-          label: p
-        },
-        id: p
-      }
-    })
-  }
+//   function createParent (nodes) {
+//     let _parents = Array.from(new Set(nodes.map(node => node.data.group))).filter(p => !nodes.find(node => node.data.id === p) && p !== 'person')
+//     return _parents.map(p => {
+//       return {
+//         group: 'nodes',
+//         data: {
+//           id: p,
+//           label: p
+//         },
+//         id: p
+//       }
+//     })
+//   }
   function createEdges(nodes, num) {
     let edges = []
     for (let i = 0; i < num - 1; i++) {
@@ -81,22 +81,22 @@ function createId(salt, randomLength = 8) {
     }
     return edges
   }
-  function createEdgesFromId(nodes, id) {
-    let edges = nodes.map(node => {
-      return {
-        group: 'edges',
-        data: {
-          target: node.data.id,
-          source: id,
-          id: createId('edge_'),
-          group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
-          label: node.data.id + '-' + id,
-          name: node.data.id + '-' + id
-        }
-      }
-    })
-    return edges
-  }
+//   function createEdgesFromId(nodes, id) {
+//     let edges = nodes.map(node => {
+//       return {
+//         group: 'edges',
+//         data: {
+//           target: node.data.id,
+//           source: id,
+//           id: createId('edge_'),
+//           group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
+//           label: node.data.id + '-' + id,
+//           name: node.data.id + '-' + id
+//         }
+//       }
+//     })
+//     return edges
+//   }
   function createData(num) {
     let nodes = createNodes(num)
     let edges = createEdges(nodes, num)
@@ -246,3 +246,17 @@ let defaults = {
         let edge = event.target;
         edge.remove();
       });
+
+      // Add tap event listener to create a new node when clicking on a blank area
+  cy.on('tap', function(event) {
+    if (event.target === cy) {
+      let pos = event.position;
+      let newNodeId = createId('node_');
+      cy.add({
+        group: 'nodes',
+        data: { id: newNodeId },
+        position: { x: pos.x, y: pos.y }
+      });
+      console.log(`New node created: ${newNodeId}`);
+    }
+  });
