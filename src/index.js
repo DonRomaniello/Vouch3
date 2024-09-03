@@ -9,14 +9,14 @@ import {
   limitShift,
 } from '@floating-ui/dom';
 
-
+ 
+cytoscape.use(cytoscapePopper(popperFactory));
+cytoscape.use( edgehandles );
+cytoscape.use( d3Force );
 
 
 function popperFactory(ref, content, opts) {
-    // see https://floating-ui.com/docs/computePosition#options
     const popperOptions = {
-        // matching the default behaviour from Popper@2
-        // https://floating-ui.com/docs/migration#configure-middleware
         middleware: [
             flip(),
             shift({limiter: limitShift()})
@@ -35,17 +35,24 @@ function popperFactory(ref, content, opts) {
     update();
     return { update };
  }
- 
-cytoscape.use(cytoscapePopper(popperFactory));
-cytoscape.use( edgehandles );
-cytoscape.use( d3Force );
-
 
 
 function generateJson() {
     const elements = cy.elements().jsons();
     return JSON.stringify(elements, null, 2);
 }
+
+async function loadJsonData() {
+    try {
+        const response = await fetch('data.json');
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error('Error loading JSON data:', error);
+        return null;
+    }
+}
+
 
 function downloadJson() {
     const json = generateJson();
@@ -60,8 +67,6 @@ function downloadJson() {
     URL.revokeObjectURL(url);
 }
 
-document.getElementById('download-json').addEventListener('click', downloadJson);
-
 function handleFileInput(event) {
     const file = event.target.files[0];
     if (file) {
@@ -75,7 +80,6 @@ function handleFileInput(event) {
 }
 
 function updateGraphWithJson(jsonData) {
-    
     cy.elements().remove(); // Remove existing elements
     cy.add(jsonData); // Add new elements
     cy.layout({
@@ -84,9 +88,14 @@ function updateGraphWithJson(jsonData) {
     ).run(); // Apply layout
 }
 
+// dom connections
+
 let maxDistance = document.getElementById('maxDistanceValue').value;
 
 let maxConnections = document.getElementById('maxConnectionsValue').value;
+
+
+document.getElementById('download-json').addEventListener('click', downloadJson);
 
 document.getElementById('load-json').addEventListener('click', function() {
     document.getElementById('file-input').click();
@@ -106,7 +115,24 @@ document.getElementById('maxConnections').addEventListener('input', function() {
     document.getElementById('maxConnectionsValue').textContent = this.value;
 });
 
-document.getElementById('maxPeople')
+
+document.getElementById('adjust').addEventListener('click', function() {
+    adjustWithD3(false);
+});
+
+document.getElementById('adjust-and-randomize').addEventListener('click', function() {
+    adjustWithD3(true);
+});
+
+
+document.getElementById('saveNodeName').addEventListener('click', saveNodeName);
+
+document.getElementById('nodeNameInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        saveNodeName();
+    }
+});
+
 
 function calculateMaxPeople(maxConnections, maxDistance) {
     // Calculate the total number of nodes in a tree with the given depth and branching factor
@@ -134,18 +160,6 @@ function createId(salt, randomLength = 8) {
       ).toString(36)
     )
   }
-
-
-  async function loadJsonData() {
-    try {
-        const response = await fetch('data.json');
-        const jsonData = await response.json();
-        return jsonData;
-    } catch (error) {
-        console.error('Error loading JSON data:', error);
-        return null;
-    }
-}
 
 // Function to create nodes and edges from JSON data
 async function createGraphFromJson() {
@@ -308,15 +322,6 @@ let defaults = {
   
 let eh = cy.edgehandles( );
 
-
-document.getElementById('adjust').addEventListener('click', function() {
-    adjustWithD3(false);
-});
-
-document.getElementById('adjust-and-randomize').addEventListener('click', function() {
-    adjustWithD3(true);
-});
-
 let lastClickedNode = null;
 
 // adjust all elements with d3 when anything happens
@@ -396,24 +401,6 @@ cy.on('tap', function(event) {
         createNodeAndEdge(event);
 }
 
-// Handle input submission
-function saveNodeName() {
-    const popperDiv = document.getElementById('nameInputBox');
-    const nodeNameInput = document.getElementById('nodeNameInput');
-    const nodeId = popperDiv.dataset.nodeId;
-    const node = cy.getElementById(nodeId);
-    node.data('name', nodeNameInput.value);
-    popperDiv.style.display = 'none';
-    lastClickedNode = null;
-}
-
-document.getElementById('saveNodeName').addEventListener('click', saveNodeName);
-
-document.getElementById('nodeNameInput').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        saveNodeName();
-    }
-});
 
 // Function to update the display
 function updateLongestPathDisplay() {
