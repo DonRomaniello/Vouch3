@@ -133,6 +133,15 @@ document.getElementById('nodeNameInput').addEventListener('keydown', function(ev
     }
 });
 
+function saveNodeName() {
+    const popperDiv = document.getElementById('nameInputBox');
+    const nodeNameInput = document.getElementById('nodeNameInput');
+    const nodeId = popperDiv.dataset.nodeId;
+    const node = cy.getElementById(nodeId);
+    node.data('name', nodeNameInput.value);
+    popperDiv.style.display = 'none';
+    lastClickedNode = null;
+}
 
 function calculateMaxPeople(maxConnections, maxDistance) {
     // Calculate the total number of nodes in a tree with the given depth and branching factor
@@ -201,7 +210,10 @@ const layoutProperties = {
         return d.id;
     },
     linkDistance: 200,
-    manyBodyStrength: -300,
+    manyBodyDistanceMin: 4,
+    manyBodyStrength: -600,
+    // radialStrength: .5,
+    // radialRadius: 100.0,
     ready: function() {},
     stop: function() {},
     tick: function() {}
