@@ -84,12 +84,45 @@ function updateGraphWithJson(jsonData) {
     ).run(); // Apply layout
 }
 
+let maxDistance = document.getElementById('maxDistanceValue').value;
+
+let maxConnections = document.getElementById('maxConnectionsValue').value;
+
 document.getElementById('load-json').addEventListener('click', function() {
     document.getElementById('file-input').click();
 });
 
 document.getElementById('file-input').addEventListener('change', handleFileInput);
 
+document.getElementById('maxDistance').addEventListener('input', function() {
+    maxDistance = this.value;
+    updateMaxPeople();
+    document.getElementById('maxDistanceValue').textContent = this.value;
+});
+
+document.getElementById('maxConnections').addEventListener('input', function() {
+    maxConnections = this.value;
+    updateMaxPeople();
+    document.getElementById('maxConnectionsValue').textContent = this.value;
+});
+
+document.getElementById('maxPeople')
+
+function calculateMaxPeople(maxConnections, maxDistance) {
+    // Calculate the total number of nodes in a tree with the given depth and branching factor
+    let totalNodes = 0;
+    for (let i = 0; i <= maxDistance; i++) {
+        totalNodes += Math.pow(maxConnections, i);
+    }
+    return totalNodes;
+}
+
+function updateMaxPeople() {
+    const maxDistance = document.getElementById('maxDistance').value;
+    const maxConnections = document.getElementById('maxConnections').value;
+    const maxPeople = calculateMaxPeople(maxConnections, maxDistance);
+    document.getElementById('maxPeople').textContent = maxPeople;
+}
 
 function createId(salt, randomLength = 8) {
     return (
