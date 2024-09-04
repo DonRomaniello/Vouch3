@@ -170,8 +170,8 @@ function calculateMaxPeople(maxConnections, maxDistance) {
 }
 
 function updateMaxPeople() {
-    const maxDistance = document.getElementById('maxDistance').value;
-    const maxConnections = document.getElementById('maxConnections').value;
+    maxDistance = document.getElementById('maxDistance').value;
+    maxConnections = document.getElementById('maxConnections').value;
     const maxPeople = calculateMaxPeople(maxConnections, maxDistance);
     document.getElementById('maxPeople').textContent = maxPeople;
 }
@@ -434,7 +434,16 @@ cy.on('tap', function(event) {
 // Function to update the display
 function updateLongestPathDisplay() {
     const displayElement = document.getElementById('longest-path-display');
+    console.log("Display element", displayElement)
+    maxDistance = document.getElementById('maxDistance').value;
+    console.log("Max distance", maxDistance)
     displayElement.textContent = `Longest Path: ${longestPath}`;
+    // add longest-path-too-long class if the path is too long
+    if (longestPath > maxDistance) {
+        displayElement.classList.add('longest-path-too-long');
+    } else {
+        displayElement.classList.remove('longest-path-too-long');
+    }
 }
 
 function findShortestPathsFromNode(sourceId) {
