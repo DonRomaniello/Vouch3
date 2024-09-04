@@ -103,6 +103,23 @@ document.getElementById('load-json').addEventListener('click', function() {
 
 document.getElementById('file-input').addEventListener('change', handleFileInput);
 
+document.getElementById('download-image').addEventListener('click', function() {
+    const png = cy.png(
+        {
+            bg: 'white',
+            full: true,
+            maxWidth: 1000,
+            maxHeight: 1000,
+        }
+    );
+    const a = document.createElement('a');
+    a.href = png;
+    a.download = 'headless-network.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+
 document.getElementById('maxDistance').addEventListener('input', function() {
     maxDistance = this.value;
     updateMaxPeople();
