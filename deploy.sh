@@ -12,15 +12,15 @@ git checkout main
 # Pull the latest changes with fast-forward only
 git pull origin main --ff-only
 
-# Build the project
-npm install
-npm run build  # Adjust this command to your build script
-
 # Switch to the gh-pages branch
 git checkout gh-pages
 
 # Reset gh-pages to match main
 git reset --hard main
+
+# Build the project
+npm install
+npm run build  # Adjust this command to your build script
 
 # Remove all files except the build output
 find . -maxdepth 1 ! -name "$BUILD_DIR" ! -name '.git' ! -name '.' -exec rm -rf {} +
