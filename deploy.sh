@@ -20,7 +20,7 @@ npm run build  # Adjust this command to your build script
 git checkout gh-pages
 
 # Merge the latest changes from the main branch
-git merge main
+git merge main --allow-unrelated-histories
 
 # Remove all files except the build output
 find . -maxdepth 1 ! -name "$BUILD_DIR" ! -name '.git' ! -name '.' -exec rm -rf {} +
