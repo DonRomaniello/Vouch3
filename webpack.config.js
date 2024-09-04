@@ -28,7 +28,8 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'src/data.json', to: 'data.json' } // Copy data.json to dist directory
+        { from: 'src/data.json', to: 'data.json' }, // Copy data.json to dist directory
+        { from: 'src/index.html', to: 'index.html' } // Copy index.html to dist directory
       ]
     })
   ],

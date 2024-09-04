@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vouch System Playground</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <style>
+        body {
+            font-family: helvetica neue, helvetica, liberation sans, arial, sans-serif;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .highlighted {
+            background-color: yellow !important;
+            line-color: yellow !important;
+            target-arrow-color: yellow !important;
+            source-arrow-color: yellow !important;
+        }
+        #cy {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 1;
+        }
+        #buttons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure buttons are above the graph */
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #nameInputBox {
+            display: none;
+            position: absolute;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 5px;
+            z-index: 1000;
+        }
+        #longest-path-display {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #controls {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+        }
+        #controls label, #controls span {
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        #controls label {
+            width: 120px; /* Adjust as needed */
+        }
+        #controls span {
+            width: 30px; /* Adjust as needed */
+            text-align: right;
+        }
+        #controls input[type="range"] {
+            width: calc(100% - 150px); /* Adjust as needed */
+            display: inline-block;
+        }
+        #max-people-display {
+            /* margin-left: 20px; */
+            font-size: 24px;
+            font-weight: bold;
+        }
+        button {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="cy"></div>
+    <div id="buttons">
+        <button id="adjust">Adjust</button>
+        <button id="adjust-and-randomize">Randomize</button>
+        <button id="download-json">Download JSON</button>
+        <button id="load-json">Load JSON</button>
+        <input type="file" id="file-input" style="display: none;" />
+      </div>
+      <div id="nameInputBox">
+        <input type="text" id="nodeNameInput" placeholder="Enter node name" />
+        <button id="saveNodeName">Save</button>
+    </div>
+    <div id="longest-path-display"></div>
+    <div id="controls">
+        <div>
+            <label for="maxDistance">Max Distance:</label>
+            <span id="maxDistanceValue">2</span>
+            <input type="range" id="maxDistance" name="maxDistance" min="1" max="3" value="2">
+            <br>
+            <label for="maxConnections">Max Connections:</label>
+            <span id="maxConnectionsValue">3</span>
+            <input type="range" id="maxConnections" name="maxConnections" min="1" max="8" value="3">
+        </div>
+        <div id="max-people-display">
+            Max Members: <span id="maxPeople">21</span>
+        </div>
+    </div>
+  
+    <script src="bundle.js"></script> <!-- Include the bundled JavaScript file -->
+</body>
+</html>
