@@ -404,7 +404,10 @@ let defaults = {
     disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
   };
   
-let eh = cy.edgehandles( );
+
+let ehDefaults = { }
+
+let eh = cy.edgehandles( ehDefaults);
 
 let lastClickedNode = null;
 
@@ -418,19 +421,6 @@ function adjustWithD3(randomize) {
     }).run();
   }
 
-
-cy.on('dblclick', 'node', function(event) {
-    let node = event.target;
-    eh.start(node);
-    lastClickedNode = node;
-  });
-
-
-// Add double-click event listener to remove an edge
-cy.on('dblclick', 'edge', function(event) {
-        let edge = event.target;
-        edge.remove();
-    });
 
 // Add function that creates a new node and edge when clicking on a blank area
 
@@ -468,14 +458,32 @@ function createNodeAndEdge(event) {
     popperDiv.dataset.nodeId = newNodeId;
 }
 
-    // Add tap event listener to create a new node when clicking on a blank area
-
-cy.on('dblclick', function(event) {
+// Add tap event listener to create a new node when clicking on a blank area
+cy.on('dbltap', function(event) {
     if (event.target === cy) {
         cy.elements().removeClass('highlighted');
         createNodeAndEdge(event);
     }
 });
+
+cy.on('tap', 'node', function(event) {
+    let node = event.target;
+    longestPath = null;
+    if (lastClickedNode) {
+        cy.add({
+            group: 'edges',
+            data: {
+                id: createId('edge_'),
+                source: lastClickedNode.id(),
+                target: node.id()
+            }
+        });
+        lastClickedNode = null;
+    }
+    findShortestPathsFromNode(node.id());
+    node.removeClass('highlighted');
+});
+
 
 cy.on('tap', function(event) {
     if (lastClickedNode && (event.target === cy)) {
@@ -484,13 +492,18 @@ cy.on('tap', function(event) {
 }
 
 
+cy.on('dbltap', 'node', function(event) {
+    let node = event.target;
+    eh.start(node);
+    lastClickedNode = node;
+  });
 
-cy.on('tap', 'node', function(event) {
-    const node = event.target;
-    longestPath = null;
-    findShortestPathsFromNode(node.id());
-    node.removeClass('highlighted');
-});
 
+
+// Add double-click event listener to remove an edge
+cy.on('dbltap', 'edge', function(event) {
+        let edge = event.target;
+        edge.remove();
+    });
 
 });
