@@ -88,6 +88,60 @@ function updateGraphWithJson(jsonData) {
     ).run(); // Apply layout
 }
 
+
+// Function to update the display
+function updateLongestPathDisplay() {
+    const displayElement = document.getElementById('longest-path-display');
+    maxDistance = document.getElementById('maxDistance').value;
+    displayElement.textContent = `Longest Path: ${longestPath}`;
+    // add longest-path-too-long class if the path is too long
+    if (longestPath > maxDistance) {
+        displayElement.classList.add('longest-path-too-long');
+    } else {
+        displayElement.classList.remove('longest-path-too-long');
+    }
+}
+
+function findShortestPathsFromNode(sourceId) {
+    const sourceNode = cy.getElementById(sourceId);
+
+    if (sourceNode.length === 0) {
+        return;
+    }
+
+    const dijkstra = cy.elements().dijkstra({
+        root: sourceNode,
+        directed: true, // Set to true if you want to find directed paths
+    });
+
+    // Clear previous highlights
+    cy.elements().removeClass('highlighted');
+
+
+    cy.nodes().forEach(targetNode => {
+        if (targetNode.id() !== sourceId) {
+            const path = dijkstra.pathTo(targetNode);
+            const distance = dijkstra.distanceTo(targetNode);
+            if ((distance !== Infinity) && (distance > longestPath)) {
+                longestPath = distance;
+                updateLongestPathDisplay();
+            }
+                // if the index of the element in the path is odd, it's an edge
+            path.forEach((element, index) => {
+                if (index % 2 === 1) {
+                    element.addClass('highlighted');
+                }
+            });
+            // also, if the path has more than one element, the target node is included
+            if (path.length > 1) {
+                targetNode.addClass('highlighted');
+            }
+        }
+    });
+
+    
+}
+
 // dom connections
 
 let maxDistance = document.getElementById('maxDistanceValue').value;
@@ -102,6 +156,23 @@ document.getElementById('load-json').addEventListener('click', function() {
 });
 
 document.getElementById('file-input').addEventListener('change', handleFileInput);
+
+document.getElementById('download-image').addEventListener('click', function() {
+    const png = cy.png(
+        {
+            bg: 'white',
+            full: true,
+            maxWidth: 1000,
+            maxHeight: 1000,
+        }
+    );
+    const a = document.createElement('a');
+    a.href = png;
+    a.download = 'headless-network.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
 
 document.getElementById('maxDistance').addEventListener('input', function() {
     maxDistance = this.value;
@@ -153,10 +224,11 @@ function calculateMaxPeople(maxConnections, maxDistance) {
 }
 
 function updateMaxPeople() {
-    const maxDistance = document.getElementById('maxDistance').value;
-    const maxConnections = document.getElementById('maxConnections').value;
+    maxDistance = document.getElementById('maxDistance').value;
+    maxConnections = document.getElementById('maxConnections').value;
     const maxPeople = calculateMaxPeople(maxConnections, maxDistance);
     document.getElementById('maxPeople').textContent = maxPeople;
+    updateLongestPathDisplay()
 }
 
 function createId(salt, randomLength = 8) {
@@ -370,7 +442,6 @@ function createNodeAndEdge(event) {
         data: { id: newNodeId },
         position: { x: pos.x, y: pos.y }
     });
-    console.log(`New node created: ${newNodeId}`);
 
     if (lastClickedNode) {
         cy.add({
@@ -381,7 +452,6 @@ function createNodeAndEdge(event) {
                 target: newNodeId
             }
         });
-        console.log(`New edge created from ${lastClickedNode.id()} to ${newNodeId}`);
         lastClickedNode = null; // Reset the last clicked node
     }
 
@@ -414,51 +484,6 @@ cy.on('tap', function(event) {
 }
 
 
-// Function to update the display
-function updateLongestPathDisplay() {
-    const displayElement = document.getElementById('longest-path-display');
-    displayElement.textContent = `Longest Path: ${longestPath}`;
-}
-
-function findShortestPathsFromNode(sourceId) {
-    const sourceNode = cy.getElementById(sourceId);
-
-    if (sourceNode.length === 0) {
-        return;
-    }
-
-    const dijkstra = cy.elements().dijkstra({
-        root: sourceNode,
-        directed: true, // Set to true if you want to find directed paths
-    });
-
-    // Clear previous highlights
-    cy.elements().removeClass('highlighted');
-
-
-    cy.nodes().forEach(targetNode => {
-        if (targetNode.id() !== sourceId) {
-            const path = dijkstra.pathTo(targetNode);
-            const distance = dijkstra.distanceTo(targetNode);
-            if ((distance !== Infinity) && (distance > longestPath)) {
-                longestPath = distance;
-                updateLongestPathDisplay();
-            }
-                // if the index of the element in the path is odd, it's an edge
-            path.forEach((element, index) => {
-                if (index % 2 === 1) {
-                    element.addClass('highlighted');
-                }
-            });
-            // also, if the path has more than one element, the target node is included
-            if (path.length > 1) {
-                targetNode.addClass('highlighted');
-            }
-        }
-    });
-
-    
-}
 
 cy.on('tap', 'node', function(event) {
     const node = event.target;

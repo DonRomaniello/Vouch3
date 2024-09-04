@@ -11,12 +11,6 @@
             padding: 0;
             overflow: hidden;
         }
-        .highlighted {
-            background-color: yellow !important;
-            line-color: yellow !important;
-            target-arrow-color: yellow !important;
-            source-arrow-color: yellow !important;
-        }
         #cy {
             position: absolute;
             left: 0;
@@ -51,6 +45,10 @@
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 14px;
+            z-index: 2;
+        }
+        .longest-path-too-long {
+            background-color: red !important;
         }
         #controls {
             position: fixed;
@@ -86,8 +84,17 @@
             font-weight: bold;
         }
         button {
-            display: block;
-            margin-bottom: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e0e0e0;
         }
     </style>
 </head>
@@ -99,6 +106,7 @@
         <button id="download-json">Download JSON</button>
         <button id="load-json">Load JSON</button>
         <input type="file" id="file-input" style="display: none;" />
+        <button id="download-image">Download Graph</button>
       </div>
       <div id="nameInputBox">
         <input type="text" id="nodeNameInput" placeholder="Enter node name" />
