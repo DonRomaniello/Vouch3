@@ -22,6 +22,13 @@ git reset --hard main
 npm install
 npm run build  # Adjust this command to your build script
 
+# Remove all files except the build output
+find . -maxdepth 1 ! -name "$BUILD_DIR" ! -name '.git' ! -name '.' -exec rm -rf {} +
+
+# Move the build output to the root
+mv $BUILD_DIR/* ./
+rm -rf $BUILD_DIR
+
 # Add and commit the changes
 git add .
 git commit -m "Deploy to GitHub Pages"
