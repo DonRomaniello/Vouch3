@@ -102,7 +102,7 @@
     <div id="cy"></div>
     <div id="buttons">
         <button id="adjust">Adjust</button>
-        <button id="adjust-and-randomize">Randomize</button>
+        <button id="adjust-and-randomize">Randomize Layout</button>
         <button id="download-json">Download JSON</button>
         <button id="load-json">Load JSON</button>
         <input type="file" id="file-input" style="display: none;" />
@@ -115,6 +115,10 @@
     <div id="longest-path-display"></div>
     <div id="controls">
         <div>
+            <label for="minConnections">Min Connections:</label>
+            <span id="minConnectionsValue">1</span>
+            <input type="range" id="minConnections" name="minConnections" min="1" max="8" value="1">
+            <br>
             <label for="maxDistance">Max Distance:</label>
             <span id="maxDistanceValue">2</span>
             <input type="range" id="maxDistance" name="maxDistance" min="1" max="3" value="2">
