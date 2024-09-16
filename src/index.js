@@ -144,9 +144,13 @@ function findShortestPathsFromNode(sourceId) {
 
 // dom connections
 
-let maxDistance = document.getElementById('maxDistanceValue').value;
+let minConnections = document.getElementById('minConnectionsValue').value;
 
 let maxConnections = document.getElementById('maxConnectionsValue').value;
+
+let maxDistance = document.getElementById('maxDistanceValue').value;
+
+
 
 
 document.getElementById('download-json').addEventListener('click', downloadJson);
@@ -456,6 +460,32 @@ function createNodeAndEdge(event) {
 
     // Save the new node ID to use it later
     popperDiv.dataset.nodeId = newNodeId;
+}
+
+function generateNetwork() {
+    const minConnections = parseInt(document.getElementById('minConnectionsSlider').value, 10);
+    const maxConnections = parseInt(document.getElementById('maxConnections').value, 10);
+
+    // Clear existing elements
+    cy.elements().remove();
+
+    // Calculate the total number of nodes
+    const totalNodes = Math.floor(Math.random() * (maxConnections - minConnections + 1)) + minConnections;
+
+    // Generate nodes
+    let newElements = [];
+    for (let i = 0; i < totalNodes; i++) {
+        newElements.push({ group: 'nodes', data: { id: `n${i}` } });
+    }
+
+    // Add new elements to the graph
+    cy.add(newElements);
+
+    // Apply a layout and fit the view to the new elements
+    cy.layout({
+        ...layoutProperties,
+    }).run();
+    
 }
 
 // Add tap event listener to create a new node when clicking on a blank area
